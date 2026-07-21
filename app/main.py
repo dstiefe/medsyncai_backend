@@ -30,22 +30,36 @@ from app import config
 # ── App Setup ─────────────────────────────────────────────────
 
 app = FastAPI(title="MedSync AI v2")
+
+# Allowed CORS origins: built-in defaults plus any comma-separated origins
+# from the CORS_ALLOWED_ORIGINS env var. Env-driven so a new frontend domain
+# can be added via .env + restart, without a code change and redeploy.
+_DEFAULT_CORS_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://localhost:9090",
+    "http://127.0.0.1:9090",
+    "https://medsync-ai.com",
+    "https://www.medsync-ai.com",
+    "https://app.medsync-ai.com",
+    "https://dev.medsync-ai.com",
+    "http://localhost:8081",
+    "http://127.0.0.1:8081",
+]
+_extra_cors_origins = [
+    origin.strip()
+    for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+CORS_ALLOWED_ORIGINS = _DEFAULT_CORS_ORIGINS + _extra_cors_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3001",
-        "http://localhost:8080",
-        "http://127.0.0.1:8080",
-        "http://localhost:9090",
-        "http://127.0.0.1:9090",
-        "https://app.medsync-ai.com",
-        "https://dev.medsync-ai.com",
-        "http://localhost:8081",
-        "http://127.0.0.1:8081",
-    ],
+    allow_origins=CORS_ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
